@@ -22,14 +22,14 @@ class RateLimiter:
     async def sliding_window_limiter_check(self, call_id : str) -> bool:
 
         if call_id in self._call_pool:
-            self._call_pool.get(call_id).append(datetime.datetime.now())
+            self._call_pool.get(call_id).append(self._now())
         else:
-            self._call_pool.update({call_id: [datetime.datetime.now()]})
+            self._call_pool.update({call_id: [self._now()]})
 
         window_count = 0
 
         for ts in self._call_pool.get(call_id):
-            if datetime.datetime.now() < ts + datetime.timedelta(milliseconds=self._period):
+            if self._now() < ts + datetime.timedelta(milliseconds=self._period):
                 window_count += 1
 
         return window_count < self._max_calls
@@ -39,14 +39,18 @@ class RateLimiter:
         if call_id in self._call_pool:
             self._call_pool.get(call_id)[CALL_COUNT_DICT_LABEL] += 1
         else:
-            self._call_pool.update({call_id: {CALL_COUNT_DICT_LABEL: 1, TIMESTAMP_DICT_LABEL: datetime.datetime.now()}})
+            self._call_pool.update({call_id: {CALL_COUNT_DICT_LABEL: 1, TIMESTAMP_DICT_LABEL: self._now()}})
 
         threshold_exceeded = self._call_pool.get(call_id)[CALL_COUNT_DICT_LABEL] < self._max_calls
         rate_expiration = self._call_pool.get(call_id)[TIMESTAMP_DICT_LABEL] + datetime.timedelta(
             milliseconds=self._period)
 
-        if datetime.datetime.now() > rate_expiration:
+        if self._now() > rate_expiration:
             self._call_pool.get(call_id)[CALL_COUNT_DICT_LABEL] = 1
             return True
 
         return threshold_exceeded
+
+    @staticmethod
+    def _now() -> datetime.datetime:
+        return datetime.datetime.now()
