@@ -12,14 +12,13 @@ class LinkedList(object):
         self._tail : DoubleLinkedElement | None = None
         self._count : int = 0
 
-    def add_element(self, obj : Any):
-        _obj = DoubleLinkedElement(obj)
+    def add_element(self, obj: DoubleLinkedElement):
         if self._head is None: #Presuming that if the list has no head is a new list
-            self._head = self._tail = _obj
+            self._head = self._tail = obj
         else:
-            self._tail.set_next(_obj)
-            _obj.set_prev(self._tail)
-            self._tail = _obj
+            self._tail.set_next(obj)
+            obj.set_prev(self._tail)
+            self._tail = obj
         self._count += 1
 
     def remove_element(self, obj : DoubleLinkedElement):
@@ -52,6 +51,12 @@ class LinkedList(object):
         self._head = obj
         obj._prev = None
 
+    def get_head(self) -> DoubleLinkedElement:
+        return self._head
+
+    def get_tail(self) -> DoubleLinkedElement:
+        return self._tail
+
     def __len__(self) -> int:
         return self._count
 
@@ -59,12 +64,13 @@ class LinkedList(object):
 
 class DoubleLinkedElement:
 
-    __slots__ = ['_value', '_next', '_prev']
+    __slots__ = ['_value', '_next', '_prev', '_key']
 
-    def __init__(self, value = None):
+    def __init__(self, key = None,  value = None):
         self._next = None
         self._prev = None
         self._value = value
+        self._key = key
 
     def get_value(self):
         return self._value
@@ -75,10 +81,27 @@ class DoubleLinkedElement:
     def set_prev(self, el : DoubleLinkedElement):
         self._prev = el
 
+    def get_next(self) -> DoubleLinkedElement:
+        return self._next
+
+    def get_prev(self) -> DoubleLinkedElement:
+        return self._prev
+
+    def set_key(self, key : int):
+        self._key = key
+
+    def get_key(self) -> int:
+        return self._key
+
+    def set_value(self, value : int):
+        self._value = value
+
     def next(self) -> DoubleLinkedElement:
         return self._next
 
     def prev(self) -> DoubleLinkedElement:
         return self._prev
+
+
 
 
