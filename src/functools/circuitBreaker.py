@@ -31,6 +31,7 @@ class CircuitBreaker:
         def wrapper(*args, **kwargs):
             local_watcher: Watcher | None = None
             result = None
+            runtime_exception = None
             if watcher_name is None:
                 local_watcher = Watcher(str(UUID))
                 self._watchers.append(local_watcher)
@@ -48,8 +49,11 @@ class CircuitBreaker:
                     result = func(*args, **kwargs)
                 except Exception as e:
                     local_watcher.add_failure(e)
+                    runtime_exception = e
                 finally:
                     local_watcher.refresh_status()
+                    if runtime_exception is not None:
+                        raise runtime_exception
                 return result
             else:
                 raise CircuitOpenException(f"Sorry, the circuit is now open. Try again in {local_watcher.get_numeric_cooldown()} seconds.")
