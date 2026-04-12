@@ -3,6 +3,8 @@ from threading import Lock, RLock
 
 from ..structures.linkedlist import LinkedList, DoubleLinkedElement
 
+class NotValidKeyError(KeyError):
+    pass
 
 class LruCache:
 
@@ -14,6 +16,10 @@ class LruCache:
         self._lock = RLock()
 
     def put(self, key, value : Any):
+
+        if key is None:
+            raise NotValidKeyError
+
         with self._lock:
             found_item = self.cache.get(key)
             if found_item:
@@ -32,10 +38,10 @@ class LruCache:
     def get(self, key : Any) -> Any:
         with self._lock:
             found_item = self.cache.get(key)
-            if found_item is not None:
+            if found_item is not None: #hit
                 self._list.move_to_head(found_item)
                 return self.cache[key].get_value()
-            else:
+            else: #miss
                 return None
 
 
