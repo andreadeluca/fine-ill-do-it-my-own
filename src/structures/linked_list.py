@@ -3,7 +3,11 @@ from __future__ import annotations
 from functools import lru_cache
 
 from typing import Any
-class LinkedList(object):
+
+from src.structures.interfaces.ListInterface import ListInterface
+
+
+class LinkedList(ListInterface):
 
     __slots__ = ['_head', '_tail', '_count']
 

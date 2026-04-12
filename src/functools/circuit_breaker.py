@@ -1,6 +1,6 @@
 import enum
 from typing import Callable
-from uuid import UUID
+from uuid import uuid4
 from datetime import datetime, timedelta
 
 class NotValidWatcher(Exception):
@@ -13,7 +13,6 @@ class CircuitOpenException(Exception):
 
 class CircuitStatus(str, enum.Enum):
     STATUS_OK = 'OK'
-    STATUS_WARNING = 'WARNING'
     STATUS_KO = 'KO'
 
 class CircuitBreaker:
@@ -28,20 +27,21 @@ class CircuitBreaker:
         self._watchers.remove(watcher)
 
     def wire_circuit(self, func : Callable, watcher_name : str = None):
+        local_watcher: Watcher | None = None
+        if watcher_name is None:
+            local_watcher = Watcher(str(uuid4()))
+            self._watchers.append(local_watcher)
+        elif watcher_name not in self._watchers:
+            raise NotValidWatcher(f"Cannot find watcher name: {watcher_name}")
+        else:
+            for el in self._watchers:
+                if el.name == watcher_name:
+                    local_watcher = el
+                    break
+        if local_watcher is None:
+            raise NotValidWatcher(f"I'm not supposed to be here!")
+
         def wrapper(*args, **kwargs):
-            local_watcher: Watcher | None = None
-            if watcher_name is None:
-                local_watcher = Watcher(str(UUID))
-                self._watchers.append(local_watcher)
-            elif watcher_name not in self._watchers:
-                raise NotValidWatcher(f"Cannot find watcher name: {watcher_name}")
-            else:
-                for el in self._watchers:
-                    if el.name == watcher_name:
-                        local_watcher = el
-                        break
-            if local_watcher is None:
-                    raise NotValidWatcher(f"I'm not supposed to be here!")
             if local_watcher.status == CircuitStatus.STATUS_OK:
                 try:
                     result = func(*args, **kwargs)
@@ -97,5 +97,10 @@ class Watcher:
     def get_numeric_cooldown(self):
         return self._cooldown.total_seconds()
 
-    def __contains__(self, item_name : str):
-        return item_name == self._name
+    def __eq__(self, other):
+        if isinstance(other, Watcher):
+            return self._name == other.name
+        elif isinstance(other, str):
+            return self._name == other
+        else:
+            return False
