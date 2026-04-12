@@ -47,7 +47,7 @@ class CircuitBreaker:
                 try:
                     result = func(*args, **kwargs)
                 except Exception as e:
-                    local_watcher.add_failure(func,e)
+                    local_watcher.add_failure(e)
                 finally:
                     local_watcher.refresh_status()
                 return result
