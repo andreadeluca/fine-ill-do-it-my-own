@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-from functools import lru_cache
-
-from typing import Any
-
-from src.structures.interfaces.ListInterface import ListInterface
+from src.structures.interfaces.list_interface import ListInterface
 
 
-class LinkedList(ListInterface):
+class DoubleLinkedList(ListInterface):
 
     __slots__ = ['_head', '_tail', '_count']
 
@@ -20,9 +16,12 @@ class LinkedList(ListInterface):
         if self._head is None: #Presuming that if the list has no head is a new list
             self._head = self._tail = obj
         else:
-            self._tail.set_next(obj)
-            obj.set_prev(self._tail)
-            self._tail = obj
+            old_head = self._head
+            old_head._prev = obj
+            self._head = obj
+            self._head._next = old_head
+            if old_head.next is None:
+                self._tail = old_head
         self._count += 1
 
     def remove_element(self, obj : DoubleLinkedElement):

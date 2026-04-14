@@ -1,7 +1,7 @@
 import datetime
 import time
 
-from src.web_tools.RateLimiter import RateLimiter
+from src.web_tools.rate_limiter import RateLimiter
 import pytest
 
 @pytest.mark.asyncio
