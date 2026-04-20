@@ -25,7 +25,7 @@ class LruCache:
             if found_item:
                 self._list.move_to_head(found_item)
                 if found_item.get_value() != value:
-                    found_item.set_value(value)
+                    found_item.set_value(value) #Dictionary update unnecessary. It already holds the correct object pointer.
             else:
                 if self.full():
                     tail = self._list.get_tail()
